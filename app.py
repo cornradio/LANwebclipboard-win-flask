@@ -225,12 +225,16 @@ def upload_file():
     return url_for('uploaded_file', filename=filename)
 
 # 添加路由来访问上传的文件
-@app.route('/uploads/<filename>')
+@app.route('/uploads/<path:filename>')
 def uploaded_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
+    uploads_dir = os.path.join(get_app_path(), 'uploads')
+    return send_from_directory(uploads_dir, filename)
 
 def open_browser():
     webbrowser.open('http://127.0.0.1:5000')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False) 
+
+# 打包
+# pyinstaller --name=LAN_clipboard_app --add-data "templates;templates" --add-data "static;static" app.py -y

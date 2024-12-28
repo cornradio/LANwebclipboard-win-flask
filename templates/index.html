@@ -156,7 +156,13 @@
             for (let item of items) {
                 if (item.type.indexOf('image') !== -1) {
                     const file = item.getAsFile();
-                    files.push(file);
+                    // 为粘贴的图片生成随机文件名
+                    const randomStr = Math.random().toString(36).substring(2, 8);
+                    const newFile = new File([file], `image_${randomStr}.png`, {
+                        type: file.type,
+                        lastModified: file.lastModified
+                    });
+                    files.push(newFile);
                 } else if (item.kind === 'file') {
                     // 处理非图片文件
                     const file = item.getAsFile();
