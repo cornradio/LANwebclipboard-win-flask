@@ -1,24 +1,24 @@
-## 简介
-它可以快速的在 Windows 电脑上启动一个 web 服务,向内网开放.  
-提供文本\图片\文件 临时存储功能  
-支持链接自动转换  
-
 
 ## 截图
-右下角托盘快捷菜单  
-![image](https://github.com/user-attachments/assets/939690bf-72b8-4839-8677-52a182eff5c9)    
-![image](https://github.com/user-attachments/assets/92182005-414c-422e-ae89-50af943dcc7b)
+
+![image](https://github.com/user-attachments/assets/70c4b599-0cb0-4ed1-9fad-ae52b06fecd7)
+
+## 简介
+1.  启动一个 web 服务
+2.  提供文本\图片\文件 存储功能
+3.  和任何内网能使用浏览器的设备分享
+4.  速度超快（内网）
+5.  windows启动操作便捷
+6.  AI 写的,没有考虑安全性问题,勿部署公网
+
+## 安装启动方法
+1. release页面下载 LAN_clipboard_app (2).zip
+2. 解压后启动 apploader.exe
+3. 在 Windows 右下角托盘右键可以打开网址/退出程序
+
+## 使用方法
+1. 在电脑上打开他的地址 如 http://127.0.0.1:5000/
+2. 在手机/其他电脑上打开它的内网地址 http://192.168.31.90:5000/
+3. 可以直接查看并下载记录中的内容
 
 
-整理一下这个项目用到的所有包
-需要的 Python 版本
-需要外安装的包
-
-1. Python 3.6
-2. Flask
-
-
-如何将这个程序打包成一个 exe 文件, 并且可以运行
-```
-pyinstaller --name=clipboard_app --add-data "templates;templates" --add-data "static;static" app.py -y
-```
