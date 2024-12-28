@@ -233,6 +233,17 @@ def uploaded_file(filename):
 def open_browser():
     webbrowser.open('http://127.0.0.1:5000')
 
+@app.route('/api/add_card', methods=['POST'])
+def add_card():
+    try:
+        content = request.json.get('text', '')
+        if content:
+            if save_card(content):
+                return jsonify({'status': 'success', 'content': content})
+        return jsonify({'status': 'error', 'message': '内容为空'}), 400
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False) 
 
