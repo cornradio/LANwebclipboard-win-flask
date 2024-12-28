@@ -200,6 +200,9 @@
 
         // 上传图片函数
         async function uploadImage(files) {
+            const textarea = document.querySelector('textarea[name="text"]');
+            textarea.value = ''; // 清空之前的内容
+            
             // 支持单个文件或文件数组   
             const fileArray = Array.isArray(files) ? files : [files];
             let uploadedContent = '';
@@ -217,31 +220,21 @@
                     const imageUrl = await response.text();
                     if (imageUrl) {
                         const fileSize = formatFileSize(file.size);
-                        const markdownImage = file.name.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i) ? 
-                            `<div class="image-card">
-                                <img src="${imageUrl}" alt="${file.name}" >
-                                <div class="image-info">
-                                    <i class="fas fa-image" style="margin-right: 4px;"></i>
-                                    <span>${file.name} (${fileSize})</span>
-                                </div>
-                            </div>` :
-                            `<div class="file-card">
-                                <i class="fas fa-file" style="margin-right: 8px;"></i>
-                                <a href="${imageUrl}">${file.name}</a>
-                                <span class="file-info" style="margin-left: 8px;">(${fileSize})</span>
-                            </div>`;
-                        uploadedContent += (uploadedContent ? '\n' : '') + markdownImage;
+                        const markdownImage = `<div class="image-card">
+                            <img src="${imageUrl}" alt="${file.name}" >
+                            <div class="image-info">
+                                <i class="fas fa-image" style="margin-right: 4px;"></i>
+                                <span>${file.name} (${fileSize})</span>
+                            </div>
+                        </div>`;
+                        
+                        // 直接提交这个图片
+                        textarea.value = markdownImage;
+                        document.querySelector('#add-btn').click();
                     }
                 } catch (error) {
                     console.error('上传出错:', error);
                 }
-            }
-            
-            if(uploadedContent) {
-                const textarea = document.querySelector('textarea[name="text"]');
-                textarea.value += (textarea.value ? '\n' : '') + uploadedContent;
-                // 模拟点击增加按钮
-                document.querySelector('#add-btn').click();
             }
         }
         

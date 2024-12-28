@@ -31,7 +31,7 @@ body {
     background-attachment: fixed;
     background-position: center;
     background-size: cover;
-    background-repeat: repeat;
+    background-repeat: no-repeat;
     will-change: transform;
 }
 
@@ -114,6 +114,7 @@ a {
 }
 pre {
     margin: 0em 0px;
+    white-space: pre-wrap;
 }
 [data-theme="dark"] .card {
     background-color: rgba(255, 255, 255, 0.05);
