@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html data-theme="light">
+<head>
+    <!-- 支持手机 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 增加一个图标 🦎-->
+     
+    <link rel="icon" href="https://em-content.zobj.net/source/google/263/lizard_1f98e.png">
+    <title>Clipboard Text</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="icon-button" style=" position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    <div class="input-form">
+        <div class="input-container">
+            <textarea id="input-text" name="text" placeholder="输入新文本..." form="text-form"></textarea>
+            <div class="button-group">
+                <button onclick="processInput()" id="add-btn" type="submit" form="text-form" class="icon-button">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <script>
+                    function processInput() {
+                        const input = document.getElementById('input-text');
+                        const text = input.value.trim();
+                        if(text.match(/^https?:\/\/.+/)) {
+                            input.value = `<a href="${text}" target="_blank">${text}</a>`;
+                        }
+                    }
+                </script>
+                <!-- 这里增加一个按钮,粘贴剪贴板的 -->
+                <!-- <button type="button" onclick="pasteClipboard()" class="icon-button">
+                    <i class="fas fa-clipboard"></i>
+                </button> -->
+                <button id="theme-toggle" onclick="toggleTheme()" class="icon-button">
+                    <i class="fas fa-moon dark-icon"></i>
+                </button>
+                <!-- 增加一个刷新按钮 -->
+                <button onclick="window.location.href='/'" class="icon-button">
+                    <i class="fas fa-refresh"></i>
+                </button>
+                <button onclick="clearHistory()" class="icon-button">
+                    <i class="fas fa-trash"></i>
+                </button>
+                <!-- add photo btn -->
+                <button onclick="document.getElementById('file-input').click()" class="icon-button">
+                    <i class="fas fa-image"></i>
+                    <input type="file" id="file-input" style="display: none;" accept="image/*" multiple onchange="uploadImages(this.files); this.value='';">
+                </button>
+            </div>
+        </div>
+        <form id="text-form" method="POST"></form>
+    </div>
+<div class="card">
+{% for card in cards %}
+    <div class="card-content" style="text-align: left; align-self: flex-start;">
+    {{ card | safe }}
+    </div>
+{% endfor %}
+
+
+</div>
+
+    <script>
+        //  默认设置黑色模式
+        document.documentElement.setAttribute('data-theme', 'dark');
+        // 自动 focus textarea
+        document.getElementById('input-text').focus();
+
+        
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+        
+        // 加载保存的主题设置
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        function clearHistory() {
+            if (confirm('确定要清空所有内容吗?')) {
+                fetch('/clear', { method: 'POST' })
+                // 直接在前端清空
+                document.querySelector('.card').innerHTML = '';
+            }
+        }
+        function pasteClipboard() {
+            navigator.clipboard.readText()
+                .then(text => {
+                    const form = document.getElementById('text-form');
+                    form.innerHTML = `<input type="hidden" name="text" value="${text}">`;
+                    document.getElementById('text-form').submit();
+                })
+                .catch(err => {
+                    console.error('无法读取剪贴板内容: ', err);
+                    alert('无法访问剪贴板，请确保已授予权限');
+                });
+        }
+        // submit on enter
+        document.getElementById('input-text').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('text-form').submit();
+            }
+        });
+
+        // 监听 Ctrl+V 事件
+        document.addEventListener('paste', async function(e) {
+            const items = e.clipboardData.items;
+            for (let item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    const file = item.getAsFile();
+                    // 给文件名加上随机后缀
+                    const randomSuffix = Math.random().toString(36).substring(2, 8);
+                    const newFile = new File([file], `${file.name.replace(/\.[^/.]+$/, '')}_${randomSuffix}${file.name.match(/\.[^/.]+$/)[0]}`, {
+                        type: file.type
+                    });
+                    await uploadImage(newFile);
+                }
+            }
+        });
+
+        // 监听文件输入变化
+        document.getElementById('file-input').addEventListener('change', async function(e) {
+            if (e.target.files && e.target.files.length > 0) {
+                await uploadImage(Array.from(e.target.files));
+            }
+        });
+
+        // 上传图片函数
+        async function uploadImage(files) {
+            // 支持单个文件或文件数组   
+            const fileArray = Array.isArray(files) ? files : [files];
+            let uploadedContent = '';
+            
+            for(const file of fileArray) {
+                const formData = new FormData();
+                formData.append('image', file);
+                
+                try {
+                    const response = await fetch('/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const imageUrl = await response.text();
+                    if (imageUrl) {
+                        const markdownImage = file.name.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i) ? 
+                            `<img src="${imageUrl}" alt="${file.name}" >` :
+                            `<a href="${imageUrl}">${file.name}</a>`;
+                        uploadedContent += (uploadedContent ? '\n' : '') + markdownImage;
+                    }
+                } catch (error) {
+                    console.error('上传出错:', error);
+                }
+            }
+            
+            if(uploadedContent) {
+                const textarea = document.querySelector('textarea[name="text"]');
+                textarea.value += (textarea.value ? '\n' : '') + uploadedContent;
+                // 模拟点击增加按钮
+                document.querySelector('#add-btn').click();
+            }
+        }
+        
+
+    </script>
+</body>
+</html> 
