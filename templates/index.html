@@ -6,17 +6,25 @@
     <!-- 增加一个图标 🦎-->
      
     <link rel="icon" href="https://em-content.zobj.net/source/google/263/lizard_1f98e.png">
-    <title>Clipboard Text</title>
+    <title>LAN Clipboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+       
+    </style>
 </head>
 <body>
+    <div id="drop-zone" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 24px;">
+            拖放文件到这里上传
+        </div>
+    </div>
     <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="icon-button" style=" position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
-        <i class="fas fa-arrow-up"></i>
+        <i class="fas fa-arrow-up"></i> 
     </button>
     <div class="input-form">
         <div class="input-container">
-            <textarea id="input-text" name="text" placeholder="输入新文本..." form="text-form"></textarea>
+            <textarea id="input-text" name="text" placeholder="输入新文本\链接\粘贴图片\文件\..." form="text-form"></textarea>
             <div class="button-group">
                 <button onclick="processInput()" id="add-btn" type="submit" form="text-form" class="icon-button">
                     <i class="fas fa-plus"></i>
@@ -30,10 +38,9 @@
                         }
                     }
                 </script>
-                <!-- 这里增加一个按钮,粘贴剪贴板的 -->
-                <!-- <button type="button" onclick="pasteClipboard()" class="icon-button">
+                <button type="button" onclick="pasteClipboard()" class="icon-button">
                     <i class="fas fa-clipboard"></i>
-                </button> -->
+                </button>
                 <button id="theme-toggle" onclick="toggleTheme()" class="icon-button">
                     <i class="fas fa-moon dark-icon"></i>
                 </button>
@@ -49,18 +56,48 @@
                     <i class="fas fa-image"></i>
                     <input type="file" id="file-input" style="display: none;" accept="image/*" multiple onchange="uploadImages(this.files); this.value='';">
                 </button>
+                <!-- add file upload btn -->
+                <button onclick="document.getElementById('file-input2').click()" class="icon-button">
+                    <i class="fas fa-file-upload"></i>
+                    <input type="file" id="file-input2" style="display: none;" accept="*" multiple onchange="uploadFiles(this.files); this.value='';">
+                </button>
             </div>
         </div>
         <form id="text-form" method="POST"></form>
     </div>
 <div class="card">
-{% for card in cards %}
-    <div class="card-content" style="text-align: left; align-self: flex-start;">
-    {{ card | safe }}
+{% for card in cards|reverse %}
+    <div class="card-wrapper" >
+        <div class="card-header">
+            <button onclick="copyContent(this)" class="icon-button raw-button" title="复制内容" style="padding: 4px 8px; font-size: 12px;">
+                <i class="fas fa-copy"></i>
+            </button>
+            <script>
+                // 在每个卡片渲染后执行检查
+                document.addEventListener('DOMContentLoaded', function() {
+                    const cardWrappers = document.querySelectorAll('.card-wrapper');
+                    cardWrappers.forEach(wrapper => {
+                        const content = wrapper.querySelector('.card-content').innerHTML;
+                        const hasImageOrFile = content.includes('<img') || content.includes('file-card');
+                        const rawButton = wrapper.querySelector('.raw-button[title="查看原始内容"]');
+                        if (hasImageOrFile && rawButton) {
+                            rawButton.style.display = 'none';
+                        }
+                    });
+                });
+            </script>
+            <button onclick="showRawContent(this)" class="icon-button raw-button" title="查看原始内容" style="padding: 4px 8px; font-size: 12px;">
+                <i class="fas fa-code"></i>
+            </button>
+            <button onclick="deleteCard(this)" class="icon-button raw-button delete-button"  style="padding: 4px 8px; font-size: 12px;" title="删除">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        <pre class="card-content" style="text-align: left; align-self: flex-start;">
+{{ card | safe }}
+        </pre>
     </div>
 {% endfor %}
-
-
 </div>
 
     <script>
@@ -91,15 +128,16 @@
             }
         }
         function pasteClipboard() {
+            // 获取剪贴板内容
             navigator.clipboard.readText()
                 .then(text => {
-                    const form = document.getElementById('text-form');
-                    form.innerHTML = `<input type="hidden" name="text" value="${text}">`;
+                    // 将内容设置到输入框
+                    document.getElementById('input-text').value = text;
+                    // 提交表单
                     document.getElementById('text-form').submit();
                 })
                 .catch(err => {
-                    console.error('无法读取剪贴板内容: ', err);
-                    alert('无法访问剪贴板，请确保已授予权限');
+                    console.error('读取剪贴板失败:', err);
                 });
         }
         // submit on enter
@@ -112,16 +150,38 @@
         // 监听 Ctrl+V 事件
         document.addEventListener('paste', async function(e) {
             const items = e.clipboardData.items;
+            let files = [];
+            let text = '';
+
             for (let item of items) {
                 if (item.type.indexOf('image') !== -1) {
                     const file = item.getAsFile();
-                    // 给文件名加上随机后缀
-                    const randomSuffix = Math.random().toString(36).substring(2, 8);
-                    const newFile = new File([file], `${file.name.replace(/\.[^/.]+$/, '')}_${randomSuffix}${file.name.match(/\.[^/.]+$/)[0]}`, {
-                        type: file.type
+                    files.push(file);
+                } else if (item.kind === 'file') {
+                    // 处理非图片文件
+                    const file = item.getAsFile();
+                    files.push(file);
+                } else if (item.type === 'text/plain') {
+                    item.getAsString((str) => {
+                        text += str;
                     });
-                    await uploadImage(newFile);
                 }
+            }
+
+            if (files.length > 0) {
+                // 根据文件类型选择上传方式
+                for (const file of files) {
+                    if (file.type.startsWith('image/')) {
+                        await uploadImage([file]);
+                    } else {
+                        await uploadFiles([file]);
+                    }
+                }
+            }
+            
+            if (text) {
+                const textarea = document.querySelector('textarea[name="text"]');
+                textarea.value += (textarea.value ? '\n' : '') + text;
             }
         });
 
@@ -150,9 +210,20 @@
                     
                     const imageUrl = await response.text();
                     if (imageUrl) {
+                        const fileSize = formatFileSize(file.size);
                         const markdownImage = file.name.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i) ? 
-                            `<img src="${imageUrl}" alt="${file.name}" >` :
-                            `<a href="${imageUrl}">${file.name}</a>`;
+                            `<div class="image-card">
+                                <img src="${imageUrl}" alt="${file.name}" >
+                                <div class="image-info">
+                                    <i class="fas fa-image" style="margin-right: 4px;"></i>
+                                    <span>${file.name} (${fileSize})</span>
+                                </div>
+                            </div>` :
+                            `<div class="file-card">
+                                <i class="fas fa-file" style="margin-right: 8px;"></i>
+                                <a href="${imageUrl}">${file.name}</a>
+                                <span class="file-info" style="margin-left: 8px;">(${fileSize})</span>
+                            </div>`;
                         uploadedContent += (uploadedContent ? '\n' : '') + markdownImage;
                     }
                 } catch (error) {
@@ -168,6 +239,234 @@
             }
         }
         
+        function showRawContent(button) {
+            // 获取最近的 pre 元素中的内容
+            const content = button.closest('.card-wrapper').querySelector('.card-content').innerHTML;
+            
+            // 创建新窗口并设置内容
+            const rawWindow = window.open('', '_blank');
+            rawWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Raw Content</title>
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <style>
+                        body {
+                            background-color: #1e1e1e;
+                            color: #d4d4d4;
+                            font-family: 'Consolas', 'Courier New', monospace;
+                            padding: 20px;
+                            margin: 0;
+                        }
+                        pre {
+                            white-space: pre-wrap;
+                            word-wrap: break-word;
+                            margin: 0;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <pre>${content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+                </body>
+                </html>
+            `);
+            rawWindow.document.close();
+        }
+
+        async function copyContent(button) {
+            const cardContent = button.closest('.card-wrapper').querySelector('.card-content');
+            const img = cardContent.querySelector('img');
+            
+            try {
+                if (img) {
+                    // 如果是图片,复制图片
+                    const response = await fetch(img.src);
+                    const blob = await response.blob();
+                    await navigator.clipboard.write([
+                        new ClipboardItem({
+                            [blob.type]: blob
+                        })
+                    ]);
+                } else {
+                    // 如果是文本,trim后复制
+                    const content = cardContent.innerText.trim();
+                    await navigator.clipboard.writeText(content);
+                }
+                
+                // 显示成功提示
+                button.title = '已复制！';
+                button.style.backgroundColor = '#4CAF50';
+                setTimeout(() => {
+                    button.title = '复制内容';
+                    button.style.backgroundColor = '';
+                }, 1000);
+            } catch (err) {
+                console.error('复制失败:', err);
+                button.title = '复制失败';
+                button.style.backgroundColor = '#f44336';
+                setTimeout(() => {
+                    button.title = '复制内容';
+                    button.style.backgroundColor = '';
+                }, 1000);
+            }
+        }
+
+        async function uploadFiles(files) {
+            let uploadedContent = '';
+            
+            for(const file of files) {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                try {
+                    const response = await fetch('/upload_file', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const fileUrl = await response.text();
+                    if (fileUrl) {
+                        // 获取文件图标
+                        const fileIcon = getFileIcon(file.name);
+                        // 格式化文件大小
+                        const fileSize = formatFileSize(file.size);
+                        // 建带图标和文件大小的链接
+                        const fileLink = `<div class="file-card">
+                            <i class="${fileIcon}" style="margin-right: 8px;"></i>
+                            <a href="${fileUrl}" target="_blank">${file.name}</a>
+                            <span class="file-info" style="margin-left: 8px;">(${fileSize})</span>
+                        </div>`;
+                        uploadedContent += (uploadedContent ? '\n' : '') + fileLink;
+                    }
+                } catch (error) {
+                    console.error('文件上传失败:', error);
+                }
+            }
+            
+            if(uploadedContent) {
+                const textarea = document.querySelector('textarea[name="text"]');
+                textarea.value += (textarea.value ? '\n' : '') + uploadedContent;
+                document.querySelector('#add-btn').click();
+            }
+        }
+
+        // 添加获取文件图标的函数
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const iconMap = {
+                // 图片
+                'jpg': 'fas fa-file-image',
+                'jpeg': 'fas fa-file-image',
+                'png': 'fas fa-file-image',
+                'gif': 'fas fa-file-image',
+                'webp': 'fas fa-file-image',
+                // 文档
+                'pdf': 'fas fa-file-pdf',
+                'doc': 'fas fa-file-word',
+                'docx': 'fas fa-file-word',
+                'xls': 'fas fa-file-excel',
+                'xlsx': 'fas fa-file-excel',
+                'ppt': 'fas fa-file-powerpoint',
+                'pptx': 'fas fa-file-powerpoint',
+                // 压缩文件
+                'zip': 'fas fa-file-archive',
+                'rar': 'fas fa-file-archive',
+                '7z': 'fas fa-file-archive',
+                // 代码文件
+                'js': 'fas fa-file-code',
+                'css': 'fas fa-file-code',
+                'html': 'fas fa-file-code',
+                'py': 'fas fa-file-code',
+                // 文本
+                'txt': 'fas fa-file-alt',
+                'md': 'fas fa-file-alt',
+                // 音频
+                'mp3': 'fas fa-file-audio',
+                'wav': 'fas fa-file-audio',
+                // 视频
+                'mp4': 'fas fa-file-video',
+                'avi': 'fas fa-file-video',
+                'mov': 'fas fa-file-video'
+            };
+            
+            return iconMap[ext] || 'fas fa-file';
+        }
+
+        // 添加文件大小格式化函数
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        const dropZone = document.getElementById('drop-zone');
+
+        // 显示拖拽区域
+        document.addEventListener('dragenter', function(e) {
+            e.preventDefault();
+            dropZone.style.display = 'block';
+        });
+
+        document.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        });
+
+        // 处理文件拖放
+        dropZone.addEventListener('drop', async function(e) {
+            e.preventDefault();
+            dropZone.style.display = 'none';
+            
+            const files = Array.from(e.dataTransfer.files);
+            for (const file of files) {
+                if (file.type.startsWith('image/')) {
+                    await uploadImage([file]);
+                } else {
+                    await uploadFiles([file]);
+                }
+            }
+        });
+
+        // 隐藏拖拽区域
+        dropZone.addEventListener('dragleave', function(e) {
+            if (e.target === dropZone) {
+                dropZone.style.display = 'none';
+            }
+        });
+
+        async function deleteCard(button) {
+            if (!confirm('确定要删除这条记录吗？')) {
+                return;
+            }
+            
+            const cardWrapper = button.closest('.card-wrapper');
+            const content = cardWrapper.querySelector('.card-content').innerHTML.trim();
+            
+            try {
+                const response = await fetch('/delete_card', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        content: content
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.status === 'success') {
+                    // 从 DOM 中移除卡片
+                    cardWrapper.remove();
+                } else {
+                    alert('删除失败：' + result.message);
+                }
+            } catch (error) {
+                console.error('删除出错:', error);
+                alert('删除失败，请重试');
+            }
+        }
 
     </script>
 </body>

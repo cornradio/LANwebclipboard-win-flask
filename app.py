@@ -1,12 +1,12 @@
 import os
 import sys
 import shutil
-from flask import Flask, render_template, request, send_from_directory
-import clipboard
-import os
-import socket
+import re
+from flask import Flask, render_template, request, send_from_directory, jsonify, url_for
 import webbrowser
-from threading import Timer
+import glob
+from werkzeug.utils import secure_filename
+import time
 
 def resource_path(relative_path):
     if hasattr(sys, '_MEIPASS'):
@@ -23,25 +23,167 @@ app = Flask(__name__,
            template_folder=resource_path('templates'),
            static_folder=resource_path('static'))
 
-STORAGE_FILE = 'cards.txt'
+CARDS_DIR = 'cards'  # 新的卡片存储目录
 
+# 添加全局变量存储卡片
+cards_cache = []
+
+# 在文件开头添加配置
+UPLOAD_FOLDER = 'uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+def ensure_cards_dir():
+    if not os.path.exists(CARDS_DIR):
+        os.makedirs(CARDS_DIR)
 
 def load_cards():
+    global cards_cache
     try:
-        if os.path.exists(STORAGE_FILE):
-            with open(STORAGE_FILE, 'r', encoding='utf-8') as f:
-                return [line.strip() for line in f.readlines() if line.strip()]
+        ensure_cards_dir()
+        cards = []
+        card_files = glob.glob(os.path.join(CARDS_DIR, '*.txt'))
+        card_files.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0]))
+        for card_file in card_files:
+            with open(card_file, 'r', encoding='utf-8') as f:
+                cards.append(f.read().strip())
+        cards_cache = cards  # 更新缓存
+        return cards
     except Exception as e:
         print(f"加载卡片出错: {str(e)}")
-    return []
+        return []
 
-def save_cards(cards):
+def save_card(content):
+    global cards_cache
     try:
-        with open(STORAGE_FILE, 'w', encoding='utf-8') as f:
-            for card in cards:
-                f.write(f"{card}\n")
+        ensure_cards_dir()
+        existing_files = glob.glob(os.path.join(CARDS_DIR, '*.txt'))
+        next_num = len(existing_files) + 1
+        file_path = os.path.join(CARDS_DIR, f'{next_num}.txt')
+        
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+        cards_cache.append(content)  # 更新缓存
+        return True
     except Exception as e:
         print(f"保存卡片出错: {str(e)}")
+        return False
+
+@app.route('/', methods=['GET', 'POST'])
+def home():
+    global cards_cache
+    if request.method == 'GET' and not cards_cache:  # 只在首次加载或缓存为空时从文件加载
+        cards_cache = load_cards()
+    
+    if request.method == 'POST':
+        new_text = request.form.get('text', '')
+        if new_text:
+            save_card(new_text)
+    
+    return render_template('index.html', cards=cards_cache, port=5000)
+
+@app.route('/clear', methods=['POST'])
+def clear_history():
+    global cards_cache
+    try:
+        if os.path.exists(CARDS_DIR):
+            shutil.rmtree(CARDS_DIR)
+        os.makedirs(CARDS_DIR)
+        cards_cache = []  # 清空缓存
+        
+        # 清空图片文件夹
+        images_dir = os.path.join(get_app_path(), 'images')
+        if os.path.exists(images_dir):
+            for file in os.listdir(images_dir):
+                os.remove(os.path.join(images_dir, file))
+        # 清空上传文件夹
+        if os.path.exists(UPLOAD_FOLDER):
+            for file in os.listdir(UPLOAD_FOLDER):
+                os.remove(os.path.join(UPLOAD_FOLDER, file))
+
+
+        return '', 204
+    except Exception as e:
+        print(f"清理历史记录出错: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/delete_card', methods=['POST'])
+def delete_card():
+    global cards_cache
+    try:
+        card_content = request.json.get('content')
+        card_id = None
+        
+        # 先尝试通过文件链接匹配
+        if '<a href="/uploads/' in card_content:
+            file_matches = re.findall(r'<a href="/uploads/([^"]+)"', card_content)
+            if file_matches:
+                # 查找包含这些文件链接的卡片
+                files = glob.glob(os.path.join(CARDS_DIR, '*.txt'))
+                for file_path in files:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        file_content = f.read().strip()
+                        if any(match in file_content for match in file_matches):
+                            card_id = int(os.path.splitext(os.path.basename(file_path))[0])
+                            # 删除上传的文件
+                            for file_filename in file_matches:
+                                try:
+                                    file_path = os.path.join(UPLOAD_FOLDER, file_filename)
+                                    if os.path.exists(file_path):
+                                        os.remove(file_path)
+                                        print(f"删除文件: {file_path}")
+                                except Exception as e:
+                                    print(f"删除文件失败: {file_path}, 错误: {str(e)}")
+                            break
+
+        # 如果没找到，尝试通过图片路径匹配
+        if card_id is None and '/images/' in card_content:
+            image_paths = re.findall(r'/images/([^"]+)', card_content)
+            files = glob.glob(os.path.join(CARDS_DIR, '*.txt'))
+            for file_path in files:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    file_content = f.read().strip()
+                    if any(image_path in file_content for image_path in image_paths):
+                        card_id = int(os.path.splitext(os.path.basename(file_path))[0])
+                        # 删除图片文件
+                        for image_path in image_paths:
+                            full_image_path = os.path.join(get_app_path(), 'images', image_path)
+                            if os.path.exists(full_image_path):
+                                os.remove(full_image_path)
+                                print(f"删除图片: {full_image_path}")
+                        break
+
+        # 如果还是没找到，尝试直接匹配内容
+        if card_id is None:
+            files = glob.glob(os.path.join(CARDS_DIR, '*.txt'))
+            for file_path in files:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    if f.read().strip() == card_content.strip():
+                        card_id = int(os.path.splitext(os.path.basename(file_path))[0])
+                        break
+
+        if card_id is None:
+            return jsonify({'status': 'error', 'message': '未找到要删除的内容'})
+
+        # 删除对应的txt文件
+        os.remove(os.path.join(CARDS_DIR, f'{card_id}.txt'))
+        
+        # 重命名后续文件，保持连续性
+        files = glob.glob(os.path.join(CARDS_DIR, '*.txt'))
+        for i in range(card_id + 1, len(files) + 2):
+            old_path = os.path.join(CARDS_DIR, f'{i}.txt')
+            if os.path.exists(old_path):
+                new_path = os.path.join(CARDS_DIR, f'{i-1}.txt')
+                os.rename(old_path, new_path)
+        
+        # 更新缓存
+        cards_cache = load_cards()
+        
+        return jsonify({'status': 'success'})
+            
+    except Exception as e:
+        print(f"删除卡片出错: {str(e)}")
+        return jsonify({'status': 'error', 'message': str(e)})
 
 # 支持post 图片 ， 并且保存图片到 images文件夹，返回图片的url
 @app.route('/upload', methods=['POST'])
@@ -55,49 +197,40 @@ def upload_image():
         return f'/images/{image.filename}'
     return '上传失败'
 
-@app.route('/', methods=['GET', 'POST'])
-def home():
-    cards = load_cards()
-    
-    if request.method == 'POST':
-        new_text = request.form.get('text', '')
-        if new_text:
-            if new_text in cards:
-                cards.remove(new_text)
-            cards.insert(0, new_text)
-            save_cards(cards)
-    
-    return render_template('index.html', cards=cards, port=5000)
-
 # 现在系统没有办法get images/ 需要增加相关路由
 @app.route('/images/<path:filename>')
 def get_image(filename):
     images_dir = os.path.join(get_app_path(), 'images')
     return send_from_directory(images_dir, filename)
 
+# 添加新的路由处理文件上传
+@app.route('/upload_file', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return 'No file part', 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return 'No selected file', 400
+        
+    filename = secure_filename(file.filename)
+    # 添加随机后缀避免文件名冲突
+    base, ext = os.path.splitext(filename)
+    filename = f"{base}_{str(int(time.time()))}{ext}"
+    
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(filepath)
+    
+    # 返回文件URL
+    return url_for('uploaded_file', filename=filename)
 
-@app.route('/clear', methods=['POST'])
-def clear_history():
-    # 清空文本记录
-    storage_path = os.path.join(get_app_path(), STORAGE_FILE)
-    with open(storage_path, 'w', encoding='utf-8') as f:
-        f.write('')
-    
-    # 清空图片文件夹
-    images_dir = os.path.join(get_app_path(), 'images')
-    if os.path.exists(images_dir):
-        for file in os.listdir(images_dir):
-            os.remove(os.path.join(images_dir, file))
-    
-    return '', 204
+# 添加路由来访问上传的文件
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(UPLOAD_FOLDER, filename)
 
 def open_browser():
     webbrowser.open('http://127.0.0.1:5000')
 
 if __name__ == '__main__':
-    # 在程序启动时清理文件
-    if os.path.exists(STORAGE_FILE):
-        os.remove(STORAGE_FILE)
-        with open(STORAGE_FILE, 'w', encoding='utf-8') as f:
-            f.write('')  # 创建一个空文件
     app.run(host='0.0.0.0', port=5000, debug=False) 
