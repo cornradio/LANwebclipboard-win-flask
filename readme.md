@@ -1,8 +1,9 @@
 
 ## 截图
 
-![image](https://github.com/user-attachments/assets/70c4b599-0cb0-4ed1-9fad-ae52b06fecd7)
+<img src="https://github.com/user-attachments/assets/70c4b599-0cb0-4ed1-9fad-ae52b06fecd7" alt="image" width="600"/>
 
+<img src="https://github.com/user-attachments/assets/6c82c575-f271-457e-bf1e-f00c97c375ef" alt="Screenshot_20241228-194939-Galaxy S8" width="260"/>
 ## 简介
 1.  启动一个 web 服务
 2.  提供文本\图片\文件 存储功能
