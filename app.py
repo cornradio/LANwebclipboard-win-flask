@@ -245,9 +245,12 @@ def add_card():
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False) 
+    port = 5000
+    if sys.platform == 'darwin':  # macOS
+        port = 5002
+    app.run(host='0.0.0.0', port=port, debug=False)
 
 # debug
-# flask run --debug --host=0.0.0.0
+# flask run --debug --host=0.0.0.0 --port5000
 # 打包
 # pyinstaller --name=LAN_clipboard_app --add-data "templates;templates" --add-data "static;static" app.py -y

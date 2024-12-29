@@ -19,11 +19,10 @@ fi
 echo "Building application..."
 # 添加 --noconsole 参数构建主应用
 pyinstaller --name=LAN_clipboard_app --add-data "templates:templates" --add-data "static:static" app.py -y
-pyinstaller --name=apploader --onefile --noconsole apploader.py -y
 
 # 创建 ZIP 压缩包
 echo "Creating ZIP archive..."
-zip -r Lan_clipboard_app.zip dist/*
+zip -r Lan_clipboard_app_macos_m1.zip dist/LAN_clipboard_app/*
 
 # 询问是否清理构建文件
 read -p "Do you want to clean the build files? (y/n): " clean
