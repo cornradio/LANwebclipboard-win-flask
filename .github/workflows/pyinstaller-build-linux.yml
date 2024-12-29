@@ -1,0 +1,30 @@
+name: Python package
+
+on: [push]
+
+jobs:
+  build-ubuntu-executable:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+    steps:
+    -   uses: actions/checkout@v4
+    -   name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+            python-version: ${{ matrix.python-version }}
+    # You can test your matrix by printing the current Python version
+    -   name: install pip requirements
+        run: |
+            pip install -r requirements.txt
+    -   name: build by cmd
+        run: |
+            chomd +x build-linux.sh
+            yes y |./build-linux.sh
+    -   name: make artifacts
+        uses: actions/upload-artifact@v3
+        with:
+            name: lanclip-linux-x64
+            path: dist/
+        
