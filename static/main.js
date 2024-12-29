@@ -51,8 +51,11 @@ document.getElementById('input-text').addEventListener('keydown', function(e) {
         //<textarea id="input-text" 增加 script tag
         const textarea = document.querySelector('textarea[name="text"]');
         textarea.value = `<script>
-        
-</script>`;
+
+</script>
+<style>
+
+</style>`;
         
     }
     //F2 sytyle
@@ -60,9 +63,9 @@ document.getElementById('input-text').addEventListener('keydown', function(e) {
         e.preventDefault(); // 阻止默认的换行行为
         //<textarea id="input-text" 增加 sytle tag
         const textarea = document.querySelector('textarea[name="text"]');
-        textarea.value = `<style>
-        
-</style>`;
+        textarea.value = `<iframe>
+
+</iframe>`;
     }
 });
 
@@ -511,7 +514,7 @@ async function addCard() {
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
-                <pre class="card-content" style="text-align: left; align-self: flex-start;">
+                <pre class="card-content" >
 ${content}
                 </pre>
             `;
