@@ -20,9 +20,8 @@ jobs:
             pip install -r requirements.txt
     -   name: build by cmd
         run: |
-            chmod +x build-linux.sh
-            yes y |./build-linux.sh
-    -   name: make artifacts
+            pyinstaller --name=LAN_clipboard_app --add-data "templates:templates" --add-data "static:static" app.py -y
+    -   name: Copy artifacts
         uses: actions/upload-artifact@v3
         with:
             name: lanclip-linux-x64
