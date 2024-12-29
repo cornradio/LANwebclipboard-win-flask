@@ -175,9 +175,6 @@ async function uploadFiles(files) {
                 newCard.className = 'card-wrapper';
                 newCard.innerHTML = `
                     <div class="card-header">
-                        <button onclick="copyContent(this)" class="icon-button raw-button" title="复制内容" style="padding: 4px 8px; font-size: 12px;">
-                            <i class="fas fa-copy"></i>
-                        </button>
                         <button onclick="downloadCard(this)" class="icon-button raw-button download-button" style="padding: 4px 8px; font-size: 12px;" title="下载">
                             <i class="fas fa-download"></i>
                         </button>
@@ -305,41 +302,6 @@ function showRawContent(button) {
         </html>
     `);
     rawWindow.document.close();
-}
-
-async function copyContent(button) {
-    const cardContent = button.closest('.card-wrapper').querySelector('.card-content');
-    const img = cardContent.querySelector('img');
-    
-    try {
-        if (img) {
-            const response = await fetch(img.src);
-            const blob = await response.blob();
-            await navigator.clipboard.write([
-                new ClipboardItem({
-                    [blob.type]: blob
-                })
-            ]);
-        } else {
-            const content = cardContent.innerText.trim();
-            await navigator.clipboard.writeText(content);
-        }
-        
-        button.title = '已复制！';
-        button.style.backgroundColor = '#4CAF50';
-        setTimeout(() => {
-            button.title = '复制内容';
-            button.style.backgroundColor = '';
-        }, 1000);
-    } catch (err) {
-        console.error('复制失败:', err);
-        button.title = '复制失败';
-        button.style.backgroundColor = '#f44336';
-        setTimeout(() => {
-            button.title = '复制内容';
-            button.style.backgroundColor = '';
-        }, 1000);
-    }
 }
 
 async function deleteCard(button) {
@@ -488,9 +450,6 @@ async function addCard() {
             newCard.className = 'card-wrapper';
             newCard.innerHTML = `
                 <div class="card-header">
-                    <button onclick="copyContent(this)" class="icon-button raw-button" title="复制内容" style="padding: 4px 8px; font-size: 12px;">
-                        <i class="fas fa-copy"></i>
-                    </button>
                     <button onclick="showRawContent(this)" class="icon-button raw-button" title="查看原始内容" style="padding: 4px 8px; font-size: 12px;">
                         <i class="fas fa-code"></i>
                     </button>
