@@ -1,4 +1,4 @@
-
+!support linux and windows!
 ## 截图
 
 <img src="https://github.com/user-attachments/assets/70c4b599-0cb0-4ed1-9fad-ae52b06fecd7" alt="image" width="600"/>
