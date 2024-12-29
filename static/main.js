@@ -23,14 +23,7 @@ function clearHistory() {
     }
 }
 
-// 处理输入
-function processInput() {
-    const input = document.getElementById('input-text');
-    const text = input.value.trim();
-    if(text.match(/^https?:\/\/.+/)) {
-        input.value = `<a href="${text}" target="_blank">${text}</a>`;
-    }
-}
+
 
 // 粘贴剪贴板内容
 function pasteClipboard() {
@@ -44,12 +37,35 @@ function pasteClipboard() {
         });
 }
 
-// Enter键提交
+// Ctrl Enter键提交
 document.getElementById('input-text').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-        document.getElementById('text-form').submit();
+    console.log(e.key)
+    if ((e.key === 'Enter' && (e.ctrlKey || e.metaKey))) {
+        e.preventDefault(); // 阻止默认的换行行为
+        //press button #add-btn
+        document.querySelector('#add-btn').click();
+    } 
+    //F1 js
+    if (e.key === 'F1') {
+        e.preventDefault(); // 阻止默认的换行行为
+        //<textarea id="input-text" 增加 script tag
+        const textarea = document.querySelector('textarea[name="text"]');
+        textarea.value = `<script>
+        
+</script>`;
+        
+    }
+    //F2 sytyle
+    if (e.key === 'F2') {
+        e.preventDefault(); // 阻止默认的换行行为
+        //<textarea id="input-text" 增加 sytle tag
+        const textarea = document.querySelector('textarea[name="text"]');
+        textarea.value = `<style>
+        
+</style>`;
     }
 });
+
 
 // 监听粘贴事件
 document.addEventListener('paste', async function(e) {
@@ -155,10 +171,14 @@ async function uploadFiles(files) {
                 const fileIcon = getFileIcon(file.name);
                 const fileSize = formatFileSize(file.size);
                 const fileLink = `<div class="file-card">
-                    <i class="${fileIcon}" style="margin-right: 8px;"></i>
-                    <a href="${fileUrl}" target="_blank">${file.name}</a>
-                    <span class="file-info" style="margin-left: 8px;">(${fileSize})</span>
-                </div>`;
+                
+                <i class="${fileIcon}" style="margin-right: 8px;"></i>
+                <a href="${fileUrl}" target="_blank">${file.name}</a>
+                <span class="file-info" style="margin-left: 8px;">(${fileSize})</span>
+                </div>
+                <video controls >
+                <source src="${fileUrl}" type="${file.type}">
+                </video>`;
                 
                 // 使用 API 提交而不是点击按钮
                 await fetch('/api/add_card', {
@@ -426,9 +446,18 @@ async function downloadCard(button) {
     }
 }
 
+// 处理输入
+function processInput(input) {
+    var outstr = input.trim();
+    // 使用正则表达式匹配所有链接
+    outstr = outstr.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+    return outstr;
+}
+
 async function addCard() {
     const textarea = document.querySelector('#input-text');
-    const content = textarea.value.trim();
+    let content = textarea.value;
+    content = processInput(content);
     
     if (!content) return;
     
