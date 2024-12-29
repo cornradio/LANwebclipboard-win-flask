@@ -20,7 +20,7 @@ jobs:
             pip install -r requirements.txt
     -   name: build by cmd
         run: |
-            chomd +x build-linux.sh
+            chmod +x build-linux.sh
             yes y |./build-linux.sh
     -   name: make artifacts
         uses: actions/upload-artifact@v3
