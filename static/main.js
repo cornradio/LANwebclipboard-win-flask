@@ -170,7 +170,7 @@ async function uploadFiles(files) {
             if (fileUrl) {
                 const fileIcon = getFileIcon(file.name);
                 const fileSize = formatFileSize(file.size);
-                const fileLink = `<div class="file-card">
+                let fileLink = `<div class="file-card">
                 
                 <i class="${fileIcon}" style="margin-right: 8px;"></i>
                 <a href="${fileUrl}" target="_blank">${file.name}</a>
@@ -179,6 +179,28 @@ async function uploadFiles(files) {
                 <video controls >
                 <source src="${fileUrl}" type="${file.type}">
                 </video>`;
+
+                if (file.type.startsWith('image/')) {
+                    fileLink = `<div class="file-card">
+                
+                <i class="${fileIcon}" style="margin-right: 8px;"></i>
+                <a href="${fileUrl}" target="_blank">${file.name}</a>
+                <span class="file-info" style="margin-left: 8px;">(${fileSize})</span>
+                </div>
+                <img  src="${fileUrl}" type="${file.type}">
+                </img>`;
+                }
+                if (file.type.startsWith('video/')) {
+                    fileLink = `<div class="file-card">
+                
+                <i class="${fileIcon}" style="margin-right: 8px;"></i>
+                <a href="${fileUrl}" target="_blank">${file.name}</a>
+                <span class="file-info" style="margin-left: 8px;">(${fileSize})</span>
+                </div>
+                <video controls >
+                <source src="${fileUrl}" type="${file.type}">
+                </video>`;
+                }
                 
                 // 使用 API 提交而不是点击按钮
                 await fetch('/api/add_card', {
