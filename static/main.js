@@ -178,9 +178,6 @@ async function uploadFiles(files) {
                         <button onclick="copyContent(this)" class="icon-button raw-button" title="复制内容" style="padding: 4px 8px; font-size: 12px;">
                             <i class="fas fa-copy"></i>
                         </button>
-                        <button onclick="showRawContent(this)" class="icon-button raw-button" title="查看原始内容" style="padding: 4px 8px; font-size: 12px;">
-                            <i class="fas fa-code"></i>
-                        </button>
                         <button onclick="downloadCard(this)" class="icon-button raw-button download-button" style="padding: 4px 8px; font-size: 12px;" title="下载">
                             <i class="fas fa-download"></i>
                         </button>
@@ -401,14 +398,12 @@ async function downloadCard(button) {
             const response = await fetch(img.src);
             const blob = await response.blob();
             
-            // 从 image-info 中获取文件名，如果没有则使用默认名称
             const imageInfo = cardContent.querySelector('.image-info span');
             let fileName = 'image.png';
             if (imageInfo) {
                 fileName = imageInfo.textContent.split(' (')[0];
             }
             
-            // 创建下载链接
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -419,8 +414,22 @@ async function downloadCard(button) {
             document.body.removeChild(a);
             
         } else if (fileLink) {
-            // 处理文件下载 - 直接触发文件链接点击
-            fileLink.click();
+            // 处理文件下载 - 使用 fetch 获取文件内容
+            const response = await fetch(fileLink.href);
+            const blob = await response.blob();
+            
+            // 从文件卡片中获取原始文件名
+            const fileName = fileLink.textContent;
+            
+            // 创建下载链接
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName; // 使用原始文件名
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
             
         } else {
             // 处理文本内容下载
