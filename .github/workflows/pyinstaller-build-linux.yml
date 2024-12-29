@@ -22,7 +22,7 @@ jobs:
         run: |
             pyinstaller --name=LAN_clipboard_app --add-data "templates:templates" --add-data "static:static" app.py -y
     -   name: Copy artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
             name: lanclip-linux-x64
             path: dist/
@@ -47,7 +47,7 @@ jobs:
                 pyinstaller --name=LAN_clipboard_app --add-data "templates;templates" --add-data "static;static"  app.py -y
                 pyinstaller --name=start --onefile --noconsole apploader.py -y
         -   name: Copy artifacts
-            uses: actions/upload-artifact@v3
+            uses: actions/upload-artifact@v4
             with:
                 name: lanclip-windows-x64
                 path: dist/
@@ -71,7 +71,7 @@ jobs:
             run: |
                 pyinstaller --name=LAN_clipboard_app --add-data "templates:templates" --add-data "static:static" app.py -y
         -   name: Copy artifacts
-            uses: actions/upload-artifact@v3
+            uses: actions/upload-artifact@v4
             with:
                 name: lanclip-macos-m1
                 path: dist/
