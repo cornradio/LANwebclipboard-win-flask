@@ -21,10 +21,58 @@ jobs:
     -   name: build by cmd
         run: |
             pyinstaller --name=LAN_clipboard_app --add-data "templates:templates" --add-data "static:static" app.py -y
-            chmod +x dist/LAN_clipboard_app
     -   name: Copy artifacts
         uses: actions/upload-artifact@v3
         with:
             name: lanclip-linux-x64
             path: dist/
-        
+
+  build-win-executable:
+        runs-on: windows-2022
+        strategy:
+            matrix:
+              python-version: ["3.10"]
+        steps:
+        -   uses: actions/checkout@v4
+        -   name: Set up Python ${{ matrix.python-version }}
+            uses: actions/setup-python@v5
+            with:
+                python-version: ${{ matrix.python-version }}
+        # You can test your matrix by printing the current Python version
+        -   name: install pip requirements
+            run: |
+                pip install -r requirements.txt
+        -   name: build by cmd
+            run: |
+                pyinstaller --name=LAN_clipboard_app --add-data "templates;templates" --add-data "static;static"  app.py -y
+                pyinstaller --name=start --onefile --noconsole apploader.py -y
+        -   name: Copy artifacts
+            uses: actions/upload-artifact@v3
+            with:
+                name: lanclip-windows-x64
+                path: dist/
+                
+  build-macos-executable:
+        runs-on: macos-15
+        strategy:
+            matrix:
+                python-version: ["3.10"]
+        steps:
+        -   uses: actions/checkout@v4
+        -   name: Set up Python ${{ matrix.python-version }}
+            uses: actions/setup-python@v5
+            with:
+                python-version: ${{ matrix.python-version }}
+        # You can test your matrix by printing the current Python version
+        -   name: install pip requirements
+            run: |
+                pip install -r requirements.txt
+        -   name: build by cmd
+            run: |
+                pyinstaller --name=LAN_clipboard_app --add-data "templates:templates" --add-data "static:static" app.py -y
+        -   name: Copy artifacts
+            uses: actions/upload-artifact@v3
+            with:
+                name: lanclip-macos-m1
+                path: dist/
+                    
