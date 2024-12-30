@@ -552,3 +552,38 @@ ${content}
         console.error('添加出错:', error);
     }
 }
+
+
+// 定义一个包含远程图片链接的列表
+const imageUrls = [
+    'static/bg.jpg',
+    'https://w.wallhaven.cc/full/kx/wallhaven-kxy19m.jpg',
+    'https://w.wallhaven.cc/full/d6/wallhaven-d61kgg.jpg',
+    'https://w.wallhaven.cc/full/kx/wallhaven-kxy19m.jpg',
+    'https://w.wallhaven.cc/full/1p/wallhaven-1p6gwg.png'
+    // 添加更多图片链接
+];
+
+// 定义一个函数来获取随机背景图片
+async function getRandomBackgroundImage() {
+    // 从列表中随机选择一个图片链接
+    const randomIndex = Math.floor(Math.random() * imageUrls.length);
+    const randomImageUrl = imageUrls[randomIndex];
+
+    // 返回图片的 URL
+    return randomImageUrl;
+}
+
+// 获取背景元素
+const backgroundElement = document.getElementById('background');
+
+// 定义一个函数来设置背景图片
+function setBackgroundImage(url) {
+    backgroundElement.style.backgroundImage = `url(${url})`;
+}
+// 调用函数并设置背景图片
+getRandomBackgroundImage().then(url => {
+    if (url) {
+        setBackgroundImage(url);
+    }
+});
