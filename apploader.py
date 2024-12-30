@@ -77,14 +77,6 @@ icon = Icon("Clipboard Loader")
 icon.icon = create_image(64, 64)  # 创建图标
 icon.title = "Clipboard Loader"
 
-
-
-
-
-
-
-
-
 icon.menu = pystray.Menu(
     MenuItem(f"Open 127.0.0.1:{port}", lambda icon, item: open_website(f"http://127.0.0.1:{port}/")),
     MenuItem(f"Open {get_ip()}:{port}", lambda icon, item: open_website(f"http://{get_ip()}:{port}/")),

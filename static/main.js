@@ -22,7 +22,26 @@ function clearHistory() {
         document.querySelector('.card').innerHTML = '';
     }
 }
+function saveTextToLocalStorage() {
+    const textarea = document.getElementById('input-text');
+    textarea.addEventListener('input', function() {
+        localStorage.setItem('input-text-content', textarea.value);
+    });
+}
 
+function loadTextFromLocalStorage() {
+    const textarea = document.getElementById('input-text');
+    const savedText = localStorage.getItem('input-text-content');
+    if (savedText) {
+        textarea.value = savedText;
+    }
+}
+
+// 在页面加载时调用这两个函数
+window.onload = function() {
+    saveTextToLocalStorage();
+    loadTextFromLocalStorage();
+};
 
 
 // 粘贴剪贴板内容
