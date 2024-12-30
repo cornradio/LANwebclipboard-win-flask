@@ -50,6 +50,7 @@
                     <i class="fas fa-file-upload"></i>
                     <input type="file" id="file-input2" style="display: none;" accept="*" multiple onchange="uploadFiles(this.files); this.value='';">
                 </button>
+
             </div>
         </div>
     </div>
@@ -79,5 +80,12 @@
     </div>
 
     <script src="{{ url_for('static', filename='main.js') }}"></script>
+    <footer>
+        <!-- 添加 GitHub 按钮 -->
+        <a href="https://github.com/cornradio/LANwebclipboard-win-flask/" target="_blank" class="github-button">
+            <i class="fab fa-github"></i>
+        </a>
+    </footer>
 </body>
+
 </html> 

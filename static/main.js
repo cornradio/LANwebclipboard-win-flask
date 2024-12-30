@@ -172,58 +172,28 @@ async function uploadImage(files) {
     }
 }
 
+
 // 文件上传相关函数
 async function uploadFiles(files) {
-    // 将 FileList 转换为数组
     const fileArray = Array.from(files);
     console.log('转换后的文件数组:', fileArray); // 调试用
-    
-    for(const file of fileArray) {
+
+    for (const file of fileArray) {
         const formData = new FormData();
         formData.append('file', file);
-        
+
         try {
             const response = await fetch('/upload_file', {
                 method: 'POST',
                 body: formData
             });
-            
+
             const fileUrl = await response.text();
             if (fileUrl) {
                 const fileIcon = getFileIcon(file.name);
                 const fileSize = formatFileSize(file.size);
-                let fileLink = `<div class="file-card">
-                
-                <i class="${fileIcon}" style="margin-right: 8px;"></i>
-                <a href="${fileUrl}" target="_blank">${file.name}</a>
-                <span class="file-info" style="margin-left: 8px;">(${fileSize})</span>
-                </div>
-                <video controls >
-                <source src="${fileUrl}" type="${file.type}">
-                </video>`;
+                const fileLink = generateFileLink(file, fileUrl, fileIcon, fileSize);
 
-                if (file.type.startsWith('image/')) {
-                    fileLink = `<div class="file-card">
-                
-                <i class="${fileIcon}" style="margin-right: 8px;"></i>
-                <a href="${fileUrl}" target="_blank">${file.name}</a>
-                <span class="file-info" style="margin-left: 8px;">(${fileSize})</span>
-                </div>
-                <img  src="${fileUrl}" type="${file.type}">
-                </img>`;
-                }
-                if (file.type.startsWith('video/')) {
-                    fileLink = `<div class="file-card">
-                
-                <i class="${fileIcon}" style="margin-right: 8px;"></i>
-                <a href="${fileUrl}" target="_blank">${file.name}</a>
-                <span class="file-info" style="margin-left: 8px;">(${fileSize})</span>
-                </div>
-                <video controls >
-                <source src="${fileUrl}" type="${file.type}">
-                </video>`;
-                }
-                
                 // 使用 API 提交而不是点击按钮
                 await fetch('/api/add_card', {
                     method: 'POST',
@@ -232,31 +202,62 @@ async function uploadFiles(files) {
                     },
                     body: JSON.stringify({ text: fileLink })
                 });
-                
+
                 // 直接在前端添加新卡片
-                const cardContainer = document.querySelector('.card');
-                const newCard = document.createElement('div');
-                newCard.className = 'card-wrapper';
-                newCard.innerHTML = `
-                    <div class="card-header">
-                        <button onclick="downloadCard(this)" class="icon-button raw-button download-button" style="padding: 4px 8px; font-size: 12px;" title="下载">
-                            <i class="fas fa-download"></i>
-                        </button>
-                        <button onclick="deleteCard(this)" class="icon-button raw-button delete-button" style="padding: 4px 8px; font-size: 12px;" title="删除">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                    <pre class="card-content" style="text-align: left; align-self: flex-start;">
-${fileLink}
-                    </pre>
-                `;
-                cardContainer.insertBefore(newCard, cardContainer.firstChild);
+                addCardToPage(fileLink);
             }
         } catch (error) {
             console.error('文件上传失败:', error);
+            showUploadError(error);
         }
     }
 }
+
+// 生成文件链接
+function generateFileLink(file, fileUrl, fileIcon, fileSize) {
+    let fileLink = `<div class="file-card">
+        <i class="${fileIcon}" style="margin-right: 8px;"></i>
+        <a href="${fileUrl}" target="_blank">${file.name}</a>
+        <span class="file-info" style="margin-left: 8px;">(${fileSize})</span>
+    </div>`;
+
+    if (file.type.startsWith('image/')) {
+        fileLink += `<img src="${fileUrl}" alt="${file.name}" />`;
+    } else if (file.type.startsWith('video/')) {
+        fileLink += `<video controls>
+            <source src="${fileUrl}" type="${file.type}">
+        </video>`;
+    }
+
+    return fileLink;
+}
+
+// 在页面中添加新卡片
+function addCardToPage(fileLink) {
+    const cardContainer = document.querySelector('.card');
+    const newCard = document.createElement('div');
+    newCard.className = 'card-wrapper';
+    newCard.innerHTML = `
+        <div class="card-header">
+            <button onclick="downloadCard(this)" class="icon-button raw-button download-button" style="padding: 4px 8px; font-size: 12px;" title="下载">
+                <i class="fas fa-download"></i>
+            </button>
+            <button onclick="deleteCard(this)" class="icon-button raw-button delete-button" style="padding: 4px 8px; font-size: 12px;" title="删除">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        <pre class="card-content" style="text-align: left; align-self: flex-start;">
+${fileLink}
+        </pre>
+    `;
+    cardContainer.insertBefore(newCard, cardContainer.firstChild);
+}
+
+// 显示上传错误
+function showUploadError(error) {
+    alert(`文件上传失败: ${error.message}`);
+}
+
 
 // 工具函数
 function getFileIcon(filename) {
@@ -502,6 +503,7 @@ async function addCard() {
     const textarea = document.querySelector('#input-text');
     let content = textarea.value;
     content = processInput(content);
+    textarea.value = ''; // 清空输入框 同步ls保存 避免残留
     
     if (!content) return;
     

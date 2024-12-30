@@ -264,3 +264,21 @@ a:hover {
     align-items: center;
     color: var(--text-color);
 }
+
+/* 圆形按钮样式 */
+.github-button {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    line-height: 40px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.github-button:hover {
+    background-color: #555;
+}
