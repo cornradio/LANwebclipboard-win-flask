@@ -16,7 +16,7 @@ else:
     application_path = os.path.dirname(os.path.abspath(__file__))
 
 # 构建 clipboard_app.exe 的完整路径
-clipboard_app_path = os.path.join(application_path, 'LAN_clipboard_app','LAN_clipboard_app.exe')
+clipboard_app_path = os.path.join(application_path,'LAN_clipboard_app.exe')
 
 # 启动 clipboard_app.exe 并挂在后台,隐藏命令行窗口
 startupinfo = subprocess.STARTUPINFO()
