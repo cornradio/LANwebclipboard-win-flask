@@ -1,3 +1,4 @@
+import argparse
 import subprocess
 import webbrowser
 import sys
@@ -21,7 +22,20 @@ clipboard_app_path = os.path.join(application_path, 'LAN_clipboard_app','LAN_cli
 startupinfo = subprocess.STARTUPINFO()
 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 startupinfo.wShowWindow = subprocess.SW_HIDE
-clipboard_process = subprocess.Popen([clipboard_app_path], startupinfo=startupinfo)
+
+# 解析命令行参数
+parser = argparse.ArgumentParser(description='Run the LAN clipboard app with custom port.')
+parser.add_argument('--port', type=int, default=5000, help='Port number to run the app on.')
+args = parser.parse_args()
+
+# 使用解析后的端口号
+port = args.port
+
+# 构建 clipboard_app.exe 的完整命令
+clipboard_app_command = [clipboard_app_path, f"--port={port}"]
+
+# 启动 clipboard_app.exe
+clipboard_process = subprocess.Popen(clipboard_app_command, startupinfo=startupinfo)
 
 def create_image(width, height):
     """创建一个简单的托盘图标"""
@@ -62,9 +76,18 @@ def get_ip():
 icon = Icon("Clipboard Loader")
 icon.icon = create_image(64, 64)  # 创建图标
 icon.title = "Clipboard Loader"
+
+
+
+
+
+
+
+
+
 icon.menu = pystray.Menu(
-    MenuItem("Open 127.0.0.1:5000", lambda icon, item: open_website("http://127.0.0.1:5000/")),
-    MenuItem(f"Open {get_ip()}:5000", lambda icon, item: open_website(f"http://{get_ip()}:5000/")),
+    MenuItem(f"Open 127.0.0.1:{port}", lambda icon, item: open_website(f"http://127.0.0.1:{port}/")),
+    MenuItem(f"Open {get_ip()}:{port}", lambda icon, item: open_website(f"http://{get_ip()}:{port}/")),
     MenuItem("Exit", exit_action)
 )
 

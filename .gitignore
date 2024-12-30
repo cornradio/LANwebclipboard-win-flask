@@ -6,3 +6,4 @@ images/*
 uploads/*
 __pycache__/
 *.zip
+__pycache__/app.cpython-312.pyc

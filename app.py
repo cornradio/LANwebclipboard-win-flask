@@ -6,6 +6,7 @@ from flask import Flask, render_template, request, send_from_directory, jsonify,
 import webbrowser
 import glob
 from werkzeug.utils import secure_filename
+import argparse
 import time
 
 def resource_path(relative_path):
@@ -245,9 +246,18 @@ def add_card():
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 if __name__ == '__main__':
-    port = 5000
     if sys.platform == 'darwin':  # macOS
-        port = 5002
+        parser = argparse.ArgumentParser(description='Run the LAN clipboard app.')
+        parser.add_argument('--port', type=int, default=5002, help='Port number to run the app on.')
+        args = parser.parse_args()
+    else:
+        parser = argparse.ArgumentParser(description='Run the LAN clipboard app.')
+        parser.add_argument('--port', type=int, default=5000, help='Port number to run the app on.')
+        args = parser.parse_args()
+
+
+    port = args.port
+
     app.run(host='0.0.0.0', port=port, debug=False)
 
 # debug
