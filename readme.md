@@ -18,11 +18,30 @@
 2. 解压后启动 start.exe
 3. 在 Windows 右下角托盘右键可以打开网址/退出程序
 
-## 一些配置项
-1. 修改 LAN_clipboard_app/_internal/static/main.js 的 imageUrls ，可以更换图片背景列表
-2. 使用 --port 启动程序，可以替换默认端口5000
 
-## nginx 配置 for linux用户
+
+## 使用方法
+1. 在电脑上打开他的地址 http://127.0.0.1:5000
+2. 在手机/其他电脑上打开它的内网地址 http://192.168.31.90:5000/
+3. 点击刷新按钮同步内容
+
+
+## FAQ
+我想自定义端口启动 参考 [issue1](https://github.com/cornradio/LANwebclipboard-win-flask/issues/1)
+
+---
+
+下面是高级配置
+
+
+## 额外可配置项
+1. 修改 LAN_clipboard_app/_internal/static/main.js 的 imageUrls ，可以更换图片背景列表
+
+## nginx转发配置 for ubuntu
+因为默认开放的是 5000端口，而且是ipv4 only ，不是很方便。
+下面的配置可以使 用nginx 进行本地转发，通过80开放公网ipv4、v6访问。
+
+修改文件：/etc/nginx/sites-enabled/default 
 ```js
 server {
     listen 80;              # 监听 IPv4
@@ -40,11 +59,37 @@ server {
     }
 }
 ```
+重启nginx
+
+## 启动服务指南 for ubuntu
+```sh
+# 查看当前所有的 screen 会话
+screen -ls
+# 进入已有的 screen 会话
+screen -r lanclip
+# 或者创建一个新的 screen 会话
+screen -S lanclip
+
+# 删除旧的文件
+rm -rvf LAN_clipboard_app/
+rm -rvf lanclip-ubuntu-x64.zip
+
+#  等待用户手动上传 lanclip-ubuntu-x64.zip
+echo "wait manual upload lanclip-ubuntu-x64.zip"
+while [ ! -f lanclip-ubuntu-x64.zip ]; do
+  sleep 1
+done
+
+# 解压文件
+unzip lanclip-ubuntu-x64.zip
+# 进入文件夹
+cd LAN_clipboard_app
+# 运行app
+./LAN_clipboard_app
+# 手动 ctrl -A -D 退出screen会话并保留在后台运行
+```
 
 
-## 使用方法
-1. 在电脑上打开他的地址 http://127.0.0.1:5000
-2. 在手机/其他电脑上打开它的内网地址 http://192.168.31.90:5000/
-3. 点击刷新按钮同步内容
+
 
 
