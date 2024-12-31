@@ -47,6 +47,9 @@ jobs:
             run: |
                 pyinstaller --name=LAN_clipboard_app --add-data "templates;templates" --add-data "static;static"  app.py -y
                 pyinstaller --name=start --onefile --noconsole apploader.py -y
+        -   name: Move start.exe to LAN_clipboard_app folder
+            run: |
+              Move-Item -Path "dist/start.exe" -Destination "dist/LAN_clipboard_app/" -Force
         -   name: Copy artifacts
             uses: actions/upload-artifact@v4
             with:
