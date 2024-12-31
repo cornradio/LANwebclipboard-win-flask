@@ -22,6 +22,26 @@
 1. 修改 LAN_clipboard_app/_internal/static/main.js 的 imageUrls ，可以更换图片背景列表
 2. 使用 --port 启动程序，可以替换默认端口5000
 
+## nginx 配置 for linux用户
+```js
+server {
+    listen 80;              # 监听 IPv4
+    listen [::]:80;         # 监听 IPv6
+    client_max_body_size 2000m;  #最大转发2G文件存储
+    # server_name your_domain_or_ip;  # 替换为你的域名或 IP 地址
+
+    location / {
+        proxy_pass http://127.0.0.1:5000/;  # 转发请求到本地5000
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+
 ## 使用方法
 1. 在电脑上打开他的地址 http://127.0.0.1:5000
 2. 在手机/其他电脑上打开它的内网地址 http://192.168.31.90:5000/
