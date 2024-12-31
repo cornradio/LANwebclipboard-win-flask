@@ -14,7 +14,7 @@
 6.  AI 写的,没有考虑安全性问题,勿部署公网
 
 ## 安装启动方法
-1. release页面下载 lanclip-windows-x64.1.zip
+1. 顶部action页面下载最新的build，按照自己的系统版本选择，如 lanclip-windows-x64.1.zip
 2. 解压后启动 start.exe
 3. 在 Windows 右下角托盘右键可以打开网址/退出程序
 
