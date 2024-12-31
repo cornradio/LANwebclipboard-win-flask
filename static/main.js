@@ -557,10 +557,10 @@ ${content}
 // 定义一个包含远程图片链接的列表
 const imageUrls = [
     'static/bg.jpg',
-    'https://w.wallhaven.cc/full/kx/wallhaven-kxy19m.jpg',
-    'https://w.wallhaven.cc/full/d6/wallhaven-d61kgg.jpg',
-    'https://w.wallhaven.cc/full/kx/wallhaven-kxy19m.jpg',
-    'https://w.wallhaven.cc/full/1p/wallhaven-1p6gwg.png'
+    'static/2.jpg',
+    'static/3.jpg',
+    'static/4.jpg',
+    'static/5.jpg'
     // 添加更多图片链接
 ];
 
