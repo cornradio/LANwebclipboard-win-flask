@@ -39,21 +39,23 @@ function loadTextFromLocalStorage() {
 
 // 在页面加载时调用这两个函数
 window.onload = function() {
-    saveTextToLocalStorage();
     loadTextFromLocalStorage();
+    saveTextToLocalStorage();
 };
 
 
 // 粘贴剪贴板内容
 function pasteClipboard() {
-    navigator.clipboard.readText()
+    try{
+        navigator.clipboard.readText()
         .then(text => {
             document.getElementById('input-text').value = text;
             document.getElementById('text-form').submit();
         })
-        .catch(err => {
-            console.error('读取剪贴板失败:', err);
-        });
+    }
+    catch{
+        alert('http 网站无法直接粘贴 ' );
+    }
 }
 
 // Ctrl Enter键提交
@@ -400,18 +402,18 @@ async function deleteCard(button) {
     }
 }
 
-// 初始化卡片检查
-document.addEventListener('DOMContentLoaded', function() {
-    const cardWrappers = document.querySelectorAll('.card-wrapper');
-    cardWrappers.forEach(wrapper => {
-        const content = wrapper.querySelector('.card-content').innerHTML;
-        const hasImageOrFile = content.includes('<img') || content.includes('file-card');
-        const rawButton = wrapper.querySelector('.raw-button[title="查看原始内容"]');
-        if (hasImageOrFile && rawButton) {
-            rawButton.style.display = 'none';
-        }
-    });
-});
+// 初始化卡片检查 - 隐藏图片和文件的 "查看原始内容" 按钮
+// document.addEventListener('DOMContentLoaded', function() {
+//     const cardWrappers = document.querySelectorAll('.card-wrapper');
+//     cardWrappers.forEach(wrapper => {
+//         const content = wrapper.querySelector('.card-content').innerHTML;
+//         const hasImageOrFile = content.includes('<img') || content.includes('file-card');
+//         const rawButton = wrapper.querySelector('.raw-button[title="查看原始内容"]');
+//         if (hasImageOrFile && rawButton) {
+//             rawButton.style.display = 'none';
+//         }
+//     });
+// });
 
 
 async function downloadCard(button) {
@@ -525,6 +527,9 @@ async function addCard() {
             newCard.className = 'card-wrapper';
             newCard.innerHTML = `
                 <div class="card-header">
+                    <button onclick="copyToClipboard(this)" class="icon-button raw-button download-button" title="复制到剪贴板" style="padding: 4px 8px; font-size: 12px;">
+                    <i class="fas fa-copy"></i>
+                    </button>
                     <button onclick="showRawContent(this)" class="icon-button raw-button" title="查看原始内容" style="padding: 4px 8px; font-size: 12px;">
                         <i class="fas fa-code"></i>
                     </button>
@@ -587,3 +592,35 @@ getRandomBackgroundImage().then(url => {
         setBackgroundImage(url);
     }
 });
+async function copyToClipboard(button) {
+    const card = button.closest('.card-wrapper');
+    const contentElement = card.querySelector('.card-content');
+    const imgElement = contentElement.querySelector('img');
+
+    if (imgElement) {
+        button.style.backgroundColor = '#FF0000'; // 设置为红色
+        setTimeout(() => {
+            button.style.backgroundColor = ''; // 恢复原始颜色
+        }, 500); // 闪烁持续时间为500毫秒
+        return;
+    } else {
+        // 复制文本内容
+        const cardContent = contentElement.innerText.trim();
+        copyTextToClipboard(cardContent);
+    }
+
+    // 闪烁按钮绿色
+    button.style.backgroundColor = '#4CAF50'; // 设置为绿色
+    setTimeout(() => {
+        button.style.backgroundColor = ''; // 恢复原始颜色
+    }, 500); // 闪烁持续时间为500毫秒
+}
+
+function copyTextToClipboard(text) {
+    const tempTextarea = document.createElement('textarea');
+    tempTextarea.value = text;
+    document.body.appendChild(tempTextarea);
+    tempTextarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempTextarea);
+}

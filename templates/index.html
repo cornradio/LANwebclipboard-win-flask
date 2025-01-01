@@ -60,6 +60,9 @@
     {% for card in cards|reverse %}
         <div class="card-wrapper">
             <div class="card-header">
+                <button onclick="copyToClipboard(this)" class="icon-button raw-button download-button" title="复制到剪贴板" style="padding: 4px 8px; font-size: 12px;">
+                    <i class="fas fa-copy"></i>
+                    </button>
                 <button onclick="showRawContent(this)" class="icon-button raw-button" title="查看原始内容" style="padding: 4px 8px; font-size: 12px;">
                     <i class="fas fa-code"></i>
                 </button>
