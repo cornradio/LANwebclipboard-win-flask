@@ -548,8 +548,9 @@ ${content}
             // 将新卡片插入到最前面
             cardContainer.insertBefore(newCard, cardContainer.firstChild);
             
-            // 清空输入框
+            // 清空输入框 和历史记录
             textarea.value = '';
+            localStorage.setItem('input-text-content', '');
         } else {
             console.error('添加失败:', result.message);
         }
