@@ -73,6 +73,7 @@ rm -rvf LAN_clipboard_app/
 rm -rvf lanclip-ubuntu-x64.zip
 
 # 提示等待用户手动上传 lanclip-ubuntu-x64.zip
+echo "https://github.com/cornradio/LANwebclipboard-win-flask/actions"
 echo "请手动上传 lanclip-ubuntu-x64.zip 并按回车键继续..."
 read
 
