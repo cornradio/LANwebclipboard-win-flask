@@ -62,7 +62,8 @@ server {
 重启nginx
 
 ## 启动服务指南 for ubuntu
-可以保存为 lanclipupdate.sh
+可以保存为 lanclipupdate.sh  
+首次安装版
 ```sh
 #!/bin/bash
 screen -S lanclip -X quit
@@ -85,6 +86,55 @@ done
 
 # 解压文件
 unzip lanclip-ubuntu-x64.zip
+
+
+# 进入文件夹
+cd LAN_clipboard_app
+
+# 启动应用程序
+# 创建一个新的 lanclip 会话并在后台运行
+# 向 lanclip 会话发送命令，在后台执行 ./LAN_clipboard_app
+screen -dmS lanclip
+screen -S lanclip -p 0 -X stuff './LAN_clipboard_app\n'
+
+# 提示用户如何退出 screen 会话
+echo "应用程序已在后台运行，通过 screen -r lanclip 查看状态"
+```
+
+更新版
+```
+#!/bin/bash
+screen -S lanclip -X quit
+# 切换到主目录
+cd ~
+# 复制文件作为备份 LAN_clipboard_app/cards images uploads
+mkdir -p LAN_clipboard_app_backup
+cp -rv LAN_clipboard_app/cards/ LAN_clipboard_app_backup/cards/
+cp -rv LAN_clipboard_app/images/ LAN_clipboard_app_backup/images/
+cp -rv LAN_clipboard_app/uploads/ LAN_clipboard_app_backup/uploads/
+
+# 删除旧的应用文件和 zip 文件
+rm -rvf LAN_clipboard_app/
+rm -rvf lanclip-ubuntu-x64.zip
+
+# 提示等待用户手动上传 lanclip-ubuntu-x64.zip
+echo "https://github.com/cornradio/LANwebclipboard-win-flask/actions"
+echo "请手动上传 lanclip-ubuntu-x64.zip 并按回车键继续..."
+read
+
+# 等待用户上传 lanclip-ubuntu-x64.zip
+while [ ! -f lanclip-ubuntu-x64.zip ]; do
+  echo "正在等待文件上传... "
+  sleep 1
+done
+
+# 解压文件
+unzip lanclip-ubuntu-x64.zip
+
+# 将备份文件复制回 LAN_clipboard_app 下的对应文件夹
+cp -rv LAN_clipboard_app_backup/cards/ LAN_clipboard_app/cards/
+cp -rv LAN_clipboard_app_backup/images/ LAN_clipboard_app/images/
+cp -rv LAN_clipboard_app_backup/uploads/ LAN_clipboard_app/uploads/
 
 
 # 进入文件夹
