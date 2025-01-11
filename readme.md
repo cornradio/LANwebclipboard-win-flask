@@ -18,6 +18,16 @@
 2. 解压后启动 start.exe
 3. 在 Windows 右下角托盘右键可以打开网址/退出程序
 
+服务器部署也可以使用docker
+
+```sh
+# dockerhub 镜像
+docker run -d -p 5000:5000 kasusa/lan-clipboard-app:latest
+
+# 阿里云镜像
+docker run -d -p 5000:5000 registry.cn-hangzhou.aliyuncs.com/aaas-images/lan-clipboard-app:latest
+```
+
 
 
 ## 使用方法
