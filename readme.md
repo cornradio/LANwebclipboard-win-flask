@@ -14,10 +14,12 @@
 6.  AI 写的,没有考虑安全性问题,勿部署公网
 
 ## 安装启动方法
+### EXE
 1. 顶部action页面下载最新的build，按照自己的系统版本选择，如 lanclip-windows-x64.1.zip
 2. 解压后启动 start.exe
 3. 在 Windows 右下角托盘右键可以打开网址/退出程序
 
+### docker
 服务器部署也可以使用docker
 
 ```sh
@@ -26,6 +28,8 @@ docker run -d -p 5000:5000 kasusa/lan-clipboard-app:latest
 
 # 阿里云镜像
 docker run -d -p 5000:5000 registry.cn-hangzhou.aliyuncs.com/aaas-images/lan-clipboard-app:latest
+mac 请使用5001 ， 因为5000被apple服务 airdorp 占用了
+docker run -d -p 5001:5000 registry.cn-hangzhou.aliyuncs.com/aaas-images/lan-clipboard-app:latest
 ```
 
 
