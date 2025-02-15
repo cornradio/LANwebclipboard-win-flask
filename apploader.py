@@ -72,6 +72,10 @@ def get_ip():
             return ip_match.group()
     return "Unknown IP"
 
+def open_file_location(path):
+    """打开文件所在位置"""
+    os.startfile(path)
+
 # 创建托盘图标
 icon = Icon("Clipboard Loader")
 icon.icon = create_image(64, 64)  # 创建图标
@@ -80,6 +84,8 @@ icon.title = "Clipboard Loader"
 icon.menu = pystray.Menu(
     MenuItem(f"Open 127.0.0.1:{port}", lambda icon, item: open_website(f"http://127.0.0.1:{port}/")),
     MenuItem(f"Open {get_ip()}:{port}", lambda icon, item: open_website(f"http://{get_ip()}:{port}/")),
+    # MenuItem 打开文件位置
+    MenuItem("Open File Location", lambda icon, item: open_file_location(application_path+"\\uploads")),
     MenuItem("Exit", exit_action)
 )
 
