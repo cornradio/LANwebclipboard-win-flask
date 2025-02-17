@@ -28,10 +28,14 @@ docker run -d -p 5000:5000 kasusa/lan-clipboard-app:latest
 
 # 阿里云镜像
 docker run -d -p 5000:5000 registry.cn-hangzhou.aliyuncs.com/aaas-images/lan-clipboard-app:latest
-mac 请使用5001 ， 因为5000被apple服务 airdorp 占用了
-docker run -d -p 5001:5000 registry.cn-hangzhou.aliyuncs.com/aaas-images/lan-clipboard-app:latest
 ```
 
+### 源码
+目前mac上发现打包脚本有问题，无论如何都不能正确打包，只能手动跑。
+在源码根目录执行：
+```
+flask run  --host=0.0.0.0 --port 5002
+```
 
 
 ## 使用方法
