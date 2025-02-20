@@ -261,6 +261,6 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=port, debug=False)
 
 # debug
-# flask run --debug --host=0.0.0.0 --port5000
+# flask run --debug --host=0.0.0.0 --port 5000
 # 打包
 # pyinstaller --name=LAN_clipboard_app --add-data "templates;templates" --add-data "static;static" app.py -y
