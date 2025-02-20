@@ -3,24 +3,22 @@
 
 <img src="https://github.com/user-attachments/assets/70c4b599-0cb0-4ed1-9fad-ae52b06fecd7" alt="image" width="600"/>
 
-
-
 ## 简介
 1.  启动一个 web 服务
 2.  提供文本\图片\文件 存储功能
-3.  和任何内网能使用浏览器的设备分享
+3.  和任何内网能使用浏览器的设备分享资源
 4.  速度超快（内网）
-5.  windows启动操作便捷
-6.  AI 写的,没有考虑安全性问题,勿部署公网
+5.  windows 可以启动成托盘，操作便捷
+6.  链接会自动变成可点击的超链接
 
 ## 安装启动方法
-### EXE
-1. 顶部action页面下载最新的build，按照自己的系统版本选择，如 lanclip-windows-x64.1.zip
+### windows - EXE
+1. 在release页面下载
 2. 解压后启动 start.exe
-3. 在 Windows 右下角托盘右键可以打开网址/退出程序
+3. 在 Windows 右下角托盘 - 右键，可以打开网址/退出程序
 
-### docker
-服务器部署也可以使用docker
+### Docker
+服务器部署也推荐使用 docker
 
 ```sh
 # dockerhub 镜像
@@ -30,18 +28,18 @@ docker run -d -p 5000:5000 kasusa/lan-clipboard-app:latest
 docker run -d -p 5000:5000 registry.cn-hangzhou.aliyuncs.com/aaas-images/lan-clipboard-app:latest
 ```
 
-### 源码
-目前mac上发现打包脚本有问题，无论如何都不能正确打包，只能手动跑。
-在源码根目录执行：
+### 通过源码运行
+> 目前mac上发现打包脚本有问题，无论如何都不能正确打包，只能手动跑。
+> 
 ```
 flask run  --host=0.0.0.0 --port 5002
 ```
 
-
 ## 使用方法
 1. 在电脑上打开他的地址 http://127.0.0.1:5000
-2. 在手机/其他电脑上打开它的内网地址 http://192.168.31.90:5000/
-3. 点击刷新按钮同步内容
+2. 通过拖动/粘贴、上传文件\图片、记录文字等。
+3. 在手机/其他电脑上打开它的内网地址 http://192.168.31.90:5000/
+4. 点击刷新按钮同步内容
 
 
 ## FAQ
@@ -49,13 +47,12 @@ flask run  --host=0.0.0.0 --port 5002
 
 ---
 
-下面是高级配置
-
+# 高级配置
 
 ## 额外可配置项
-1. 修改 LAN_clipboard_app/_internal/static/main.js 的 imageUrls ，可以更换图片背景列表
+1. 背景图片 ： 修改 LAN_clipboard_app/_internal/static/main.js 的 imageUrls ，可以更换背景图片列表
 
-## nginx转发配置 for ubuntu
+## nginx 转发配置 for ubuntu （ipv6）
 因为默认开放的是 5000端口，而且是ipv4 only ，不是很方便。
 下面的配置可以使 用nginx 进行本地转发，通过80开放公网ipv4、v6访问。
 
@@ -80,6 +77,11 @@ server {
 重启nginx
 
 ## 启动服务指南 for ubuntu
+
+> 自从上传了docker之后我就很少用这种方式了。
+> 不过这个也有优点，就是查看上传的文件比较方便。
+>
+
 可以保存为 lanclipupdate.sh  
 首次安装版
 ```sh
