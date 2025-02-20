@@ -159,7 +159,7 @@ def delete_card():
             files = glob.glob(os.path.join(CARDS_DIR, '*.txt'))
             for file_path in files:
                 with open(file_path, 'r', encoding='utf-8') as f:
-                    if f.read().strip() == card_content.strip():
+                    if card_content.strip()[:200] in f.read().strip():
                         card_id = int(os.path.splitext(os.path.basename(file_path))[0])
                         break
 
