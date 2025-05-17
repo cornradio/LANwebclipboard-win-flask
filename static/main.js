@@ -12,7 +12,7 @@ function toggleTheme() {
 }
 
 // 加载保存的主题
-const savedTheme = localStorage.getItem('theme') || 'light';
+const savedTheme = localStorage.getItem('theme') || 'dark';
 document.documentElement.setAttribute('data-theme', savedTheme);
 
 // 清空历史记录
@@ -340,35 +340,38 @@ dropZone.addEventListener('dragleave', function(e) {
 // 卡片操作相关函数
 function showRawContent(button) {
     const content = button.closest('.card-wrapper').querySelector('.card-content').innerHTML;
+    const modal = document.getElementById('raw-content-modal');
+    const rawContentText = document.getElementById('raw-content-text');
     
-    const rawWindow = window.open('', '_blank');
-    rawWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Raw Content</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-                body {
-                    background-color: #1e1e1e;
-                    color: #d4d4d4;
-                    font-family: 'Consolas', 'Courier New', monospace;
-                    padding: 20px;
-                    margin: 0;
-                }
-                pre {
-                    white-space: pre-wrap;
-                    word-wrap: break-word;
-                    margin: 0;
-                }
-            </style>
-        </head>
-        <body>
-            <pre>${content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
-        </body>
-        </html>
-    `);
-    rawWindow.document.close();
+    // 设置内容
+    rawContentText.textContent = content.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    
+    // 显示弹窗
+    modal.style.display = 'block';
+    
+    // 禁止背景滚动
+    document.body.style.overflow = 'hidden';
+    
+    // 点击弹窗外部关闭
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeRawContent();
+        }
+    });
+    
+    // ESC键关闭
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeRawContent();
+        }
+    });
+}
+
+// 添加关闭弹窗函数
+function closeRawContent() {
+    const modal = document.getElementById('raw-content-modal');
+    modal.style.display = 'none';
+    document.body.style.overflow = ''; // 恢复背景滚动
 }
 
 async function deleteCard(button) {
@@ -562,11 +565,11 @@ ${content}
 
 // 定义一个包含远程图片链接的列表
 const imageUrls = [
-    'static/bg.jpg',
-    'static/2.jpg',
-    'static/3.jpg',
-    'static/4.jpg',
-    'static/5.jpg'
+    // 'static/bg.jpg',
+    // 'static/2.jpg',
+    // 'static/3.jpg',
+    // 'static/4.jpg',
+    // 'static/5.jpg'
     // 添加更多图片链接
 ];
 

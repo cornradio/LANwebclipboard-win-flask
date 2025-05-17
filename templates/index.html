@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-theme="light">
+<html data-theme="dark">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="{{ url_for('static', filename='lizard.png') }}">
@@ -24,29 +24,30 @@
     <!-- 输入区域 -->
     <div class="input-form">
         <div class="input-container">
-            <textarea id="input-text" name="text" placeholder="输入新文本\链接\粘贴图片\文件\Ctrl+Enter发送...
-支持模板:F1 JS\CSS F2 IFRAME"></textarea>
+            <textarea id="input-text" name="text" placeholder="输入文本, Ctrl+Enter或者点击的加号发送"></textarea>
             <div class="button-group">
-                <button onclick="addCard()" id="add-btn" class="icon-button">
+                <button onclick="addCard()" id="add-btn" class="icon-button" title="添加">
                     <i class="fas fa-plus"></i>
                 </button>
-                <button type="button" onclick="pasteClipboard()" class="icon-button">
-                    <i class="fas fa-clipboard"></i>
-                </button>
-                <button id="theme-toggle" onclick="toggleTheme()" class="icon-button">
+                <!-- <button type="button" onclick="pasteClipboard()" class="icon-button">
+                    <i class="fas fa-clipboard"></i> 粘贴
+                </button> -->
+                <!-- <button id="theme-toggle" onclick="toggleTheme()" class="icon-button">
                     <i class="fas fa-moon dark-icon"></i>
-                </button>
-                <button onclick="window.location.href='/'" class="icon-button">
+                </button> -->
+                <button onclick="window.location.href='/'" class="icon-button" title="刷新">
                     <i class="fas fa-refresh"></i>
                 </button>
-                <button onclick="clearHistory()" class="icon-button">
+                <button onclick="clearHistory()" class="icon-button" title="清空">
                     <i class="fas fa-trash"></i>
                 </button>
-                <button onclick="document.getElementById('file-input').click()" class="icon-button">
+
+                
+                <button onclick="document.getElementById('file-input').click()" class="icon-button" title="上传图片">
                     <i class="fas fa-image"></i>
                     <input type="file" id="file-input" style="display: none;" accept="image/*" multiple onchange="uploadImages(this.files); this.value='';">
                 </button>
-                <button onclick="document.getElementById('file-input2').click()" class="icon-button">
+                <button onclick="document.getElementById('file-input2').click()" class="icon-button" title="上传文件">
                     <i class="fas fa-file-upload"></i>
                     <input type="file" id="file-input2" style="display: none;" accept="*" multiple onchange="uploadFiles(this.files); this.value='';">
                 </button>
@@ -80,6 +81,21 @@
             </pre>
         </div>
     {% endfor %}
+    </div>
+
+    <!-- 添加弹窗HTML结构 -->
+    <div id="raw-content-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>原始内容</h3>
+                <button class="close-button" onclick="closeRawContent()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <pre id="raw-content-text"></pre>
+            </div>
+        </div>
     </div>
 
     <script src="{{ url_for('static', filename='main.js') }}"></script>
