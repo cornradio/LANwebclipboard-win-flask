@@ -13,10 +13,15 @@
     --txtbg-color: #1a1a1a;
     --link-color: #b5daf0;  
 }
+body{
+    margin: 0;
+    padding: 0;
+    background-color:      #1F1F1F;
 
+}
 
-body {
-    background-color: var(--bg-color);
+.body {
+    /* background-color: var(--bg-color); */
     padding: 20px;
     font-family: Arial, sans-serif;
     color: var(--text-color);
@@ -77,14 +82,14 @@ img,video {
 
 textarea  {
     width: 100%;
-    min-height: 100px;
+    min-height: 50px;
     padding: 12px;
     border: 2px solid var(--border-color);
     border-radius: 6px;
     font-size: 16px;
     color: var(--text-color);
     opacity: 0.9;
-    resize: vertical;
+    /* resize: vertical; */
     background-color: var(--txtbg-color);
 }
 textarea:focus-visible {
@@ -334,11 +339,11 @@ a:hover {
 
 /* 圆形按钮样式 */
 .github-button {
-    display: inline-block;
+    margin-left: 16px;
+right: 0;
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-color: #333;
     color: #fff;
     text-align: center;
     line-height: 40px;
@@ -379,8 +384,10 @@ a:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--border-color);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
 }
 
 .modal-header h3 {
@@ -405,7 +412,7 @@ a:hover {
 
 .modal-body {
     padding: 16px;
-    max-height: 70vh;
+    max-height: 100vh;
     overflow-y: auto;
 }
 
@@ -450,4 +457,352 @@ a:hover {
 
 .modal-body::-webkit-scrollbar-thumb:hover {
     background: rgba(var(--text-color-rgb), 0.3);
+}
+
+/* Header样式优化 */
+#banner {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    background: rgba(67, 67, 67, 0.45);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.banner-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.banner-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+}
+
+.title {
+    font-size: 20px;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.banner-right {
+    display: flex;
+    align-items: center;
+}
+
+/* GitHub按钮样式优化 */
+.github-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+}
+
+.github-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.github-button i {
+    font-size: 20px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .banner-wrap {
+        padding: 8px 16px;
+    }
+    
+    .logo img {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .title {
+        font-size: 18px;
+    }
+    
+    .github-button {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .github-button i {
+        font-size: 18px;
+    }
+}
+
+/* 图片模态窗样式 */
+.image-modal-content {
+    max-width: 90%;
+    width: auto;
+    height: auto;
+    margin: 1% auto;
+    background: transparent;
+    box-shadow: none;
+}
+
+.image-modal-body {
+    position: relative;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: black;
+}
+
+.image-modal-body img {
+    max-width: 100%;
+    max-height: 92vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 图片点击效果 */
+.card-content img {
+    cursor: zoom-in;
+    transition: transform 0.2s ease;
+}
+
+.card-content img:hover {
+    transform: scale(1.02);
+}
+
+/* 图片模态窗动画 */
+@keyframes imageModalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.image-modal-content {
+    animation: imageModalFadeIn 0.3s ease;
+}
+
+/* 模态窗操作按钮样式 */
+.modal-actions {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.action-button {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.action-button:hover {
+    background: rgba(var(--text-color-rgb), 0.1);
+    transform: translateY(-1px);
+}
+
+/* 调整关闭按钮样式以匹配 */
+.close-button {
+    margin-left: 0; /* 移除之前的左边距 */
+}
+
+/* 图片导航按钮样式 */
+.nav-button {
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    margin: 0 4px;
+}
+
+.nav-button:hover {
+    background: rgba(0, 0, 0, 0.7);
+    transform: scale(1.1);
+}
+
+/* 当图片数量为1时隐藏导航按钮 */
+.image-modal-body.single-image ~ .modal-header .nav-button {
+    display: none;
+}
+
+/* 调整图片模态窗样式以适应导航按钮 */
+.image-modal-body {
+    position: relative;
+    padding: 0; /* 移除左右padding */
+}
+
+/* 图片计数器样式 */
+.image-counter {
+    font-size: 16px;
+    color: var(--text-color);
+    background: rgba(0, 0, 0, 0.5);
+    padding: 4px 12px;
+    border-radius: 16px;
+    margin-right: auto;
+}
+
+/* 当只有一张图片时隐藏计数器 */
+.image-modal-body.single-image ~ .modal-header .image-counter {
+    display: none;
+}
+
+/* 设置模态窗样式 */
+.settings-modal-content {
+    max-width: 500px;
+}
+
+.settings-section {
+    margin-bottom: 24px;
+}
+
+.settings-section h4 {
+    margin: 0 0 16px 0;
+    color: var(--text-color);
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.setting-label {
+    color: var(--text-color);
+    font-size: 14px;
+}
+
+/* 开关样式 */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.2);
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+/* 提示列表样式 */
+.tips-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tip-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-color);
+    font-size: 14px;
+}
+
+.tip-item i {
+    width: 20px;
+    color: #2196F3;
+}
+
+/* 关于链接样式 */
+.about-links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.about-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-color);
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+}
+
+.about-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.about-link i {
+    font-size: 20px;
 }

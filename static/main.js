@@ -226,10 +226,10 @@ function generateFileLink(file, fileUrl, fileIcon, fileSize) {
     if (file.type.startsWith('image/')) {
         fileLink += `<img src="${fileUrl}" alt="${file.name}" />`;
     } else if (file.type.startsWith('video/')) {
-        fileLink += `<video controls>
+        fileLink = `<video controls>
             <source src="${fileUrl}" type="${file.type}">
-        </video>`;
-    }
+        </video> <br/>` + fileLink ;
+    }   
 
     return fileLink;
 }
@@ -628,3 +628,185 @@ function copyTextToClipboard(text) {
     document.execCommand('copy');
     document.body.removeChild(tempTextarea);
 }
+
+// 添加图片导航相关变量和函数
+let currentImageIndex = 0;
+let imageList = [];
+
+// 修改showImageModal函数
+function showImageModal(imageSrc) {
+    const modal = document.getElementById('image-modal');
+    const modalImage = document.getElementById('modal-image');
+    const modalBody = document.querySelector('.image-modal-body');
+    const currentImageNumber = document.getElementById('current-image-number');
+    const totalImages = document.getElementById('total-images');
+    
+    // 获取所有图片
+    imageList = Array.from(document.querySelectorAll('.card-content img')).map(img => img.src);
+    currentImageIndex = imageList.indexOf(imageSrc);
+    
+    // 更新图片
+    modalImage.src = imageSrc;
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    
+    // 更新计数器
+    currentImageNumber.textContent = currentImageIndex + 1;
+    totalImages.textContent = imageList.length;
+    
+    // 如果只有一张图片，添加single-image类
+    if (imageList.length === 1) {
+        modalBody.classList.add('single-image');
+    } else {
+        modalBody.classList.remove('single-image');
+    }
+    
+    // 点击模态窗背景关闭
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeImageModal();
+        }
+    });
+    
+    // 键盘快捷键
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeImageModal();
+        } else if (e.key === 'o' && (e.ctrlKey || e.metaKey)) {
+            openImageInNewTab();
+        } else if (e.key === 'ArrowLeft') {
+            showPrevImage();
+        } else if (e.key === 'ArrowRight') {
+            showNextImage();
+        }
+    });
+}
+
+// 修改showPrevImage函数
+function showPrevImage() {
+    if (imageList.length <= 1) return;
+    
+    currentImageIndex = (currentImageIndex - 1 + imageList.length) % imageList.length;
+    const modalImage = document.getElementById('modal-image');
+    const currentImageNumber = document.getElementById('current-image-number');
+    
+    modalImage.src = imageList[currentImageIndex];
+    currentImageNumber.textContent = currentImageIndex + 1;
+    
+    // 添加过渡动画
+    modalImage.style.opacity = '0';
+    setTimeout(() => {
+        modalImage.style.opacity = '1';
+    }, 50);
+}
+
+// 修改showNextImage函数
+function showNextImage() {
+    if (imageList.length <= 1) return;
+    
+    currentImageIndex = (currentImageIndex + 1) % imageList.length;
+    const modalImage = document.getElementById('modal-image');
+    const currentImageNumber = document.getElementById('current-image-number');
+    
+    modalImage.src = imageList[currentImageIndex];
+    currentImageNumber.textContent = currentImageIndex + 1;
+    
+    // 添加过渡动画
+    modalImage.style.opacity = '0';
+    setTimeout(() => {
+        modalImage.style.opacity = '1';
+    }, 50);
+}
+
+// 修改closeImageModal函数
+function closeImageModal() {
+    const modal = document.getElementById('image-modal');
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+    // 清除图片列表
+    imageList = [];
+    currentImageIndex = 0;
+}
+
+// 为所有图片添加点击事件
+document.addEventListener('DOMContentLoaded', function() {
+    // 为现有的图片添加点击事件
+    document.querySelectorAll('.card-content img').forEach(img => {
+        img.onclick = function() {
+            showImageModal(this.src);
+        };
+    });
+    
+    // 监听新添加的卡片
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.addedNodes.length) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) { // 元素节点
+                        const images = node.querySelectorAll('img');
+                        images.forEach(img => {
+                            img.onclick = function() {
+                                showImageModal(this.src);
+                            };
+                        });
+                    }
+                });
+            }
+        });
+    });
+    
+    // 开始观察卡片容器
+    const cardContainer = document.querySelector('.card');
+    if (cardContainer) {
+        observer.observe(cardContainer, {
+            childList: true,
+            subtree: true
+        });
+    }
+});
+
+// 添加打开图片的函数
+function openImageInNewTab() {
+    const modalImage = document.getElementById('modal-image');
+    if (modalImage && modalImage.src) {
+        window.open(modalImage.src, '_blank');
+    }
+}
+
+// 设置相关函数
+function showSettings() {
+    const modal = document.getElementById('settings-modal');
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    
+    // 设置简洁模式开关状态
+    const simpleModeToggle = document.getElementById('simple-mode-toggle');
+    simpleModeToggle.checked = localStorage.getItem('simpleMode') === 'true';
+}
+
+function closeSettings() {
+    const modal = document.getElementById('settings-modal');
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+function toggleSimpleMode() {
+    const simpleMode = document.getElementById('simple-mode-toggle').checked;
+    localStorage.setItem('simpleMode', simpleMode);
+    
+    const background = document.getElementById('background');
+    if (simpleMode) {
+        background.style.display = 'none';
+    } else {
+        background.style.display = 'block';
+    }
+}
+
+// 页面加载时检查简洁模式状态
+document.addEventListener('DOMContentLoaded', function() {
+    const simpleMode = localStorage.getItem('simpleMode') === 'true';
+    if (simpleMode) {
+        document.getElementById('background').style.display = 'none';
+        document.getElementById('simple-mode-toggle').checked = true;
+    }
+});
